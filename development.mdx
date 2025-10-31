@@ -1,94 +1,114 @@
 ---
-title: 'Development'
-description: 'Preview changes locally to update your docs'
+title: "Development"
+description: "Learn how to develop and test your speech-to-speech agents using AIVOCO’s APIs and WebSocket connections."
 ---
 
-<Info>
-  **Prerequisites**:
-  - Node.js version 19 or higher
-  - A docs repository with a `docs.json` file
-</Info>
 
-Follow these steps to install and run Mintlify on your operating system.
+Welcome to the **AIVOCO Development Guide** — your reference for building, testing, and scaling **speech-to-speech (S2S) voice agents** powered by the **ROSE** model.
 
-<Steps>
-<Step title="Install the Mintlify CLI">
+---
 
-```bash
-npm i -g mint
-```
-</Step>
+## Local Development Setup
 
-<Step title="Preview locally">
+Before you start coding, ensure that you’ve completed the [Quickstart](/quickstart) guide.
 
-Navigate to your docs directory where your `docs.json` file is located, and run the following command:
+You’ll need:
 
-```bash
-mint dev
-```
+- Your **API key** from [playground.aivoco.com](https://playground.aivoco.com)
+- An **Agent ID** created using the [Create Agent](/api-reference/agents/create) endpoint
+- Access to the **WebSocket URL** to connect your speech agent
 
-A local preview of your documentation will be available at `http://localhost:3000`.
+---
 
-</Step>
-</Steps>
+## WebSocket Connection
 
-## Custom ports
+The ROSE model communicates in real time over WebSocket.
 
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. For example, to run Mintlify on port 3333, use this command:
+To connect your application:
 
-```bash
-mint dev --port 3333
-```
+```javascript
+const ws = new WebSocket("wss://call.aivoco.on.cloud.vispark.in/ws/{api_key}/{agent_id}");
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+ws.onopen = () => {
+  console.log("Connected to ROSE agent");
+  // Start sending or receiving audio data here
+};
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
-```
+ws.onmessage = (event) => {
+  console.log("Received audio or transcript:", event.data);
+};
 
-## Mintlify versions
+ws.onclose = () => console.log("Connection closed");
+````
 
-Please note that each CLI release is associated with a specific version of Mintlify. If your local preview does not align with the production version, please update the CLI:
+This WebSocket stream enables **real-time bi-directional audio** between your system and the ROSE model.
 
-```bash
-npm mint update
-```
+---
 
-## Validating links
+## Agent Lifecycle
 
-The CLI can assist with validating links in your documentation. To identify any broken links, use the following command:
+You can manage your voice agents through the REST API. Common operations include:
 
-```bash
-mint broken-links
-```
+| Action       | Endpoint                                              |
+| ------------ | ----------------------------------------------------- |
+| Create Agent | [`POST /agents`](/api-reference/endpoint/create)        |
+| Get Agent    | [`GET /agents/{id}`](/api-reference/endpoint/get)       |
+| Update Agent | [`PUT /agents/{id}`](/api-reference/endpoint/update)    |
+| Delete Agent | [`DELETE /agents/{id}`](/api-reference/endpoint/delete) |
 
-## Deployment
+Each operation allows you to programmatically manage agent configuration, personalities, voices, and function calling capabilities.
 
-If the deployment is successful, you should see the following:
+---
 
-<Frame>
-  <img src="/images/checks-passed.png" alt="Screenshot of a deployment confirmation message that says All checks have passed." style={{ borderRadius: '0.5rem' }} />
-</Frame>
+## Connecting with Telephony
 
-## Code formatting
+To use your agent for **voice calls**, connect the WebSocket endpoint to your telephony provider.
+We provide an example integration with **Twilio** in [Outbound Telephony Integration](/telephony/outbound), but you can use **any telephony system** that supports audio streaming.
 
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
+If your preferred provider is not listed, you can reach out at
+[📧 aivocofounders@gmail.com](mailto:aivocofounders@gmail.com) for custom integration support.
 
-## Troubleshooting
+---
+
+## Testing and Debugging
 
 <AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
-
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of the CLI: `npm remove -g mint`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall the CLI: `npm i -g mint`
+  <Accordion icon="bug" title="Testing locally">
+    You can test your agents using the ROSE WebSocket without deploying to production.  
+    Simply connect using your API key and agent ID from the playground.
   </Accordion>
 
-  <Accordion title="Issue: Encountering an unknown error">
-  
-    Solution: Go to the root of your device and delete the `~/.mintlify` folder. Then run `mint dev` again.
+  <Accordion icon="waveform" title="Audio debugging">
+    Record incoming and outgoing audio locally to verify audio stream quality.  
+    Use tools like `ffmpeg` or `sox` to capture and inspect audio packets.
+  </Accordion>
+
+  <Accordion icon="code" title="Inspecting responses">
+    The WebSocket will send both audio and transcript events.  
+    Log all message events in your client for better observability.
   </Accordion>
 </AccordionGroup>
 
-Curious about what changed in the latest CLI version? Check out the [CLI changelog](https://www.npmjs.com/package/mintlify?activeTab=versions).
+---
+
+## Retrieving Transcriptions
+
+After your calls are completed, you can retrieve full conversation transcripts using the
+[`GET /transcriptions/{call_id}`](/api-reference/transcriptions/get) endpoint.
+
+This allows you to analyze and store the conversation context for your business logic or analytics layer.
+
+---
+
+## Next Steps
+
+* Build and deploy your own ROSE voice agent
+* Connect with your telephony or VoIP system
+* Retrieve and analyze transcripts
+* Launch your AI-powered conversations
+
+---
+
+
+**© 2025 AIVOCO** | *ROSE — Real-Time Speech-to-Speech Intelligence*
+

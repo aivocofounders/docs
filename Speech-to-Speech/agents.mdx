@@ -1,0 +1,181 @@
+#  ROSE Agents API Documentation
+
+## Overview
+
+**AIvoco Speech-to-Speech Agents** are intelligent, configurable personas that power real-time, human-like conversations.\
+You can define your agent’s **persona, tone, and behavior**, then connect it to **telephony** or **WebSocket streaming** via the ROSE model.
+
+These APIs allow you to **create, list, update, and delete** agents used in your Speech-to-Speech (S2S) applications.
+
+---
+
+##  Authentication
+
+All requests must include your API key in the header.
+
+**Header Example:**
+
+```
+X-API-Key: YOUR_API_KEY
+```
+
+### Base URL
+
+```
+https://call.aivoco.on.cloud.vispark.in
+```
+
+### WebSocket Endpoint
+
+```
+wss://call.aivoco.on.cloud.vispark.in/ws/{api_key}/{agent_uuid}
+```
+
+#### WebSocket Notes
+
+- Pass API key and Agent UUID as path segments
+- Requires sufficient credits
+- Enables **real-time, bidirectional audio streaming**
+
+---
+
+##  Agents API (CRUD)
+
+### 1. List Agents
+
+**Request**
+
+```
+GET /agents
+X-API-Key: YOUR_API_KEY
+```
+
+**Response Example**
+
+```json
+[
+  {
+    "id": "agent_001",
+    "name": "Sales Agent",
+    "voice": "girl",
+    "system_message": "You are a professional sales agent..."
+  }
+]
+```
+
+---
+
+### 2. Create Agent
+
+**Request**
+
+```
+POST /agents
+Content-Type: application/json
+X-API-Key: YOUR_API_KEY
+```
+
+**Body**
+
+```json
+{
+  "name": "Sales Agent",
+  "system_message": "You are a professional sales agent...",
+  "voice": "girl"
+}
+```
+
+**Response**
+
+```json
+{
+  "id": "agent_001",
+  "name": "Sales Agent",
+  "voice": "girl",
+  "system_message": "You are a professional sales agent...",
+  "created_at": "2025-10-31T12:00:00Z"
+}
+```
+
+---
+
+### 3. Update Agent
+
+**Request**
+
+```
+PATCH /agents/{agent_id}
+Content-Type: application/json
+X-API-Key: YOUR_API_KEY
+```
+
+**Body**
+
+```json
+{
+  "name": "Updated Name",
+  "system_message": "You are now an updated persona...",
+  "voice": "boy"
+}
+```
+
+**Response**
+
+```json
+{
+  "id": "agent_001",
+  "name": "Updated Name",
+  "voice": "boy",
+  "updated_at": "2025-10-31T12:30:00Z"
+}
+```
+
+---
+
+### 4. Delete Agent
+
+**Request**
+
+```
+DELETE /agents/{agent_id}
+X-API-Key: YOUR_API_KEY
+```
+
+**Response**
+
+```json
+{
+  "status": "deleted",
+  "id": "agent_001"
+}
+```
+
+---
+
+## Validation Rules
+
+| Field            | Description                      | Constraints                  |
+| ---------------- | -------------------------------- | ---------------------------- |
+| `name`           | Agent name                       | ≤ 30 characters              |
+| `system_message` | Defines the persona and behavior | ≤ 100,000 characters         |
+| `voice`          | Voice type                       | Must be one of `{boy, girl}` |
+
+---
+
+##  Example WebSocket Connection
+
+**Endpoint**
+
+```
+wss://call.aivoco.on.cloud.vispark.in/ws/YOUR_API_KEY/AGENT_UUID
+```
+
+**Example Workflow:**
+
+1. Connect to the WebSocket using your API key and agent UUID.
+2. Stream live audio data (input speech).
+3. Receive real-time speech responses from the ROSE model.
+
+---
+
+**© 2025 AIvoco** | AIvoco Agents – Dynamic Voice Personas Powered by ROSE

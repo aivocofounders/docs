@@ -1,0 +1,467 @@
+# Function Calling Guide for Aivoco Voice AI Agent
+
+## Overview
+
+Function calling allows your AI agents to interact with external APIs and services during voice calls. When enabled, Rose can intelligently decide when to call functions, execute them asynchronously, and incorporate the results into the conversation naturally.
+
+## Features
+
+-  Define custom functions per agent with API endpoints
+-  Automatic function execution via HTTP requests (GET, POST, PUT, DELETE)
+-  Rose continues conversation while function executes
+-  Support for multiple functions per agent
+-  Automatic cost tracking and billing
+-  Function validation and error handling
+
+## Cost Structure
+
+### For Admin
+- **0.1 units** per function call
+- **5 units** per 1000 Tokens (combined input + output parameters)
+
+
+### For Regular Users
+- Dynamic via `cost_function` per minute in users table
+
+## Function Schema Format
+
+Functions are stored in the `functions` JSONB field of the agents table:
+
+```json
+{
+  "functions": [
+    {
+      "name": "function_name",
+      "description": "Clear description of what the function does",
+      "api_url": "https://api.example.com/endpoint",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_API_KEY"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "param1": {
+            "type": "string",
+            "description": "Description of param1"
+          },
+          "param2": {
+            "type": "integer",
+            "description": "Description of param2"
+          }
+        },
+        "required": ["param1"]
+      }
+    }
+  ]
+}
+```
+
+## Field Descriptions
+
+### Required Fields
+
+- **name**: Function name (alphanumeric and underscores only)
+- **description**: Clear description for Rose to understand when to use it
+- **api_url**: Full URL to the API endpoint (must start with http:// or https://)
+- **method**: HTTP method (GET, POST, PUT, DELETE, PATCH)
+- **parameters**: OpenAPI-style parameter schema
+
+### Optional Fields
+
+- **headers**: Custom HTTP headers (can include placeholders like `{param_name}`)
+
+### Parameter Schema
+
+The `parameters` field follows OpenAPI 3.0 schema format:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "parameter_name": {
+      "type": "string|integer|number|boolean|array",
+      "description": "Parameter description",
+      "enum": ["option1", "option2"]  // Optional: for fixed values
+    }
+  },
+  "required": ["list", "of", "required", "params"]
+}
+```
+
+## Example Use Cases
+
+### 1. Weather Function
+
+```json
+{
+  "functions": [
+    {
+      "name": "get_weather",
+      "description": "Get current weather for a specific location",
+      "api_url": "https://api.weatherapi.com/v1/current.json",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name or zip code (e.g., 'London' or '90210')"
+          },
+          "units": {
+            "type": "string",
+            "enum": ["celsius", "fahrenheit"],
+            "description": "Temperature units"
+          }
+        },
+        "required": ["location"]
+      }
+    }
+  ]
+}
+```
+
+### 2. CRM Lookup Function
+
+```json
+{
+  "functions": [
+    {
+      "name": "lookup_customer",
+      "description": "Look up customer details by phone number or email",
+      "api_url": "https://api.yourcrm.com/customers/lookup",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_CRM_API_KEY"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Customer phone number"
+          },
+          "email": {
+            "type": "string",
+            "description": "Customer email address"
+          }
+        },
+        "required": []
+      }
+    }
+  ]
+}
+```
+
+### 3. Appointment Booking Function
+
+```json
+{
+  "functions": [
+    {
+      "name": "book_appointment",
+      "description": "Book an appointment for a customer",
+      "api_url": "https://api.yourbooking.com/appointments",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-API-Key": "YOUR_BOOKING_API_KEY"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "customer_name": {
+            "type": "string",
+            "description": "Full name of the customer"
+          },
+          "date": {
+            "type": "string",
+            "description": "Appointment date in YYYY-MM-DD format"
+          },
+          "time": {
+            "type": "string",
+            "description": "Appointment time in HH:MM format (24-hour)"
+          },
+          "service": {
+            "type": "string",
+            "enum": ["consultation", "checkup", "followup"],
+            "description": "Type of service"
+          }
+        },
+        "required": ["customer_name", "date", "time", "service"]
+      }
+    }
+  ]
+}
+```
+
+### 4. Database Query Function
+
+```json
+{
+  "functions": [
+    {
+      "name": "check_inventory",
+      "description": "Check product inventory and availability",
+      "api_url": "https://api.yourinventory.com/check",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "Product SKU or ID"
+          },
+          "location": {
+            "type": "string",
+            "description": "Warehouse or store location code"
+          }
+        },
+        "required": ["product_id"]
+      }
+    }
+  ]
+}
+```
+
+## API Usage
+
+### Creating an Agent with Functions
+
+```bash
+curl -X POST https://call.aivoco.on.cloud.vispark.in/agents \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Weather Assistant",
+    "system_message": "You are a helpful weather assistant. When users ask about weather, use the get_weather function.",
+    "voice": "girl",
+    "functions": {
+      "functions": [
+        {
+          "name": "get_weather",
+          "description": "Get current weather for a location",
+          "api_url": "https://api.weatherapi.com/v1/current.json",
+          "method": "GET",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "City name"
+              }
+            },
+            "required": ["location"]
+          }
+        }
+      ]
+    }
+  }'
+```
+
+### Updating Agent Functions
+
+```bash
+curl -X PATCH https://call.aivoco.on.cloud.vispark.in/agents/{agent_id} \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "functions": {
+      "functions": [
+        {
+          "name": "new_function",
+          "description": "Updated function",
+          "api_url": "https://api.example.com/new",
+          "method": "POST",
+          "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        }
+      ]
+    }
+  }'
+```
+
+## How It Works
+
+### 1. Call Initiation
+```
+User makes call → System checks agent functions
+```
+
+### 2. During Call
+```
+User speaks → Rose processes → Decides to call function → Function executes asynchronously
+                ↓
+Rose continues talking ← "Tool called, results pending"
+                ↓
+Function completes → Results fed back to Rose → Rose incorporates into response
+```
+
+### 3. Cost Tracking
+```
+Function execution → Track input/output tokens → Calculate cost → Log to metrics
+                                                      ↓
+                                                (0.1 + text_cost)
+```
+
+### 4. Call Completion
+```
+Call ends → Log function summary → Display costs → Deduct from admin units
+```
+
+## Best Practices
+
+### 1. Function Naming
+- Use descriptive, action-oriented names (e.g., `get_weather`, `book_appointment`)
+- Use snake_case (underscores)
+- Avoid spaces and special characters
+
+### 2. Descriptions
+- Be very specific about what the function does
+- Include examples in the description
+- Mention any constraints or requirements
+
+### 3. Parameters
+- Use clear parameter names
+- Provide detailed descriptions
+- Use `enum` for fixed value sets
+- Mark required parameters correctly
+
+### 4. API Design
+- Ensure your API returns JSON responses
+- Include proper error handling
+- Set appropriate timeouts (max 30 seconds)
+- Use authentication headers wisely
+
+### 5. Cost Optimization
+- Keep parameter and response sizes small
+- Use efficient API endpoints
+
+## Validation Rules
+
+The system validates function definitions:
+
+1. **Required fields**: name, description, api_url, method, parameters
+2. **Name**: Alphanumeric and underscores only
+3. **Method**: Must be GET, POST, PUT, DELETE, or PATCH
+4. **URL**: Must start with http:// or https://
+5. **Parameters**: Must have a `properties` field
+
+## Error Handling
+
+### Common Errors
+
+1. **Invalid function definition**
+   - Error: Missing required fields
+   - Solution: Ensure all required fields are present
+
+2. **HTTP timeout**
+   - Error: Function timed out after 30 seconds
+   - Solution: Optimize your API or increase efficiency
+
+4. **API errors**
+   - Error: HTTP 4xx/5xx responses
+   - Solution: Check API endpoint, authentication, parameters
+
+
+## Example Conversation Flow
+
+**User**: "What's the weather like in San Francisco?"
+
+**AI**: "Let me check the current weather in San Francisco for you."
+> *[Calls get_weather function with location="San Francisco"]*
+
+**AI**: "While I'm getting that information, is there anything specific you'd like to know about the weather?"
+> *[Function executing in background]*
+
+**AI**: "The current weather in San Francisco is 68°F and sunny with light winds. Perfect weather for outdoor activities!"
+> *[Function results received and incorporated]*
+
+## Troubleshooting
+
+### Functions not being called
+- Check function descriptions are clear and specific
+- Verify system_message guides the AI to use functions
+- Ensure parameters are well-defined
+
+### High costs
+- Review parameter sizes
+- Optimize API responses
+- Consider caching frequently-used data
+
+### API failures
+- Test API endpoints independently
+- Check authentication headers
+- Verify parameter types match API requirements
+
+
+## Advanced Usage
+
+### Multiple Functions
+
+Define multiple functions for complex workflows:
+
+```json
+{
+  "functions": [
+    {
+      "name": "check_availability",
+      "description": "Check if service is available",
+      "api_url": "https://api.example.com/availability",
+      "method": "GET",
+      "parameters": { ... }
+    },
+    {
+      "name": "book_service",
+      "description": "Book the service after checking availability",
+      "api_url": "https://api.example.com/book",
+      "method": "POST",
+      "parameters": { ... }
+    }
+  ]
+}
+```
+
+Rose will intelligently chain function calls when appropriate.
+
+### Parameter Placeholders in Headers
+
+Use parameter values in headers:
+
+```json
+{
+  "headers": {
+    "Authorization": "Bearer {api_key}",
+    "X-User-ID": "{user_id}"
+  },
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "description": "API key for authentication"
+      },
+      "user_id": {
+        "type": "string",
+        "description": "User identifier"
+      }
+    }
+  }
+}
+```
+
+The system will replace `{api_key}` and `{user_id}` with actual parameter values.
+
+
+**© 2025 AIVOCO** | AIvoco Agents – Dynamic Voice Personas Powered by ROSE

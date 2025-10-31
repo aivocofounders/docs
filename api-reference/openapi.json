@@ -1,216 +1,417 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "AIvoco Agent Management API",
+    "description": "Manage Voice AI Agents and enable advanced function calling using external APIs.",
+    "version": "1.1.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://call.aivoco.on.cloud.vispark.in"
     }
   ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the agent."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the agent."
+          },
+          "system_message": {
+            "type": "string",
+            "description": "Defines the agent's personality and behavior."
+          },
+          "voice": {
+            "type": "string",
+            "enum": ["boy", "girl"],
+            "description": "Voice identity of the agent."
+          },
+          "functions": {
+            "$ref": "#/components/schemas/Functions"
+          }
+        }
+      },
+      "Functions": {
+        "type": "object",
+        "properties": {
+          "functions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the callable function."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Brief summary of what the function does."
+                },
+                "api_url": {
+                  "type": "string",
+                  "description": "The external API endpoint to call."
+                },
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST"],
+                  "description": "HTTP method used for the API request."
+                },
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "required": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "Schema defining parameters accepted by this function."
+                }
+              },
+              "required": ["name", "api_url", "method"]
             }
           }
-        ],
+        },
+        "description": "List of callable functions available to the agent."
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/agents": {
+      "get": {
+        "summary": "List Agents",
+        "description": "Fetch all existing agents under your account.",
+        "security": [{ "ApiKeyAuth": [] }],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "A list of agents.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "items": { "$ref": "#/components/schemas/Agent" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Agent (with optional Function Calling)",
+        "description": "Creates a new agent. Optionally define callable functions that the agent can invoke during interactions.",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Agent"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Simple agent creation",
+                  "value": {
+                    "name": "Sales Agent",
+                    "system_message": "You are a helpful sales agent.",
+                    "voice": "girl"
+                  }
+                },
+                "withFunctions": {
+                  "summary": "Agent with function calling",
+                  "value": {
+                    "name": "Weather Assistant",
+                    "system_message": "You are a helpful weather assistant. When users ask about weather, use the get_weather function.",
+                    "voice": "girl",
+                    "functions": {
+                      "functions": [
+                        {
+                          "name": "get_weather",
+                          "description": "Get current weather for a location",
+                          "api_url": "https://api.weatherapi.com/v1/current.json",
+                          "method": "GET",
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "location": {
+                                "type": "string",
+                                "description": "City name"
+                              }
+                            },
+                            "required": ["location"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agent successfully created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Agent" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request payload.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{agent_id}": {
+      "patch": {
+        "summary": "Update Agent",
+        "description": "Modify the properties of an existing agent.",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          {
+            "name": "agent_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Agent" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agent updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Agent" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Agent",
+        "description": "Removes the agent permanently from your account.",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          {
+            "name": "agent_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Agent deleted successfully." }
+        }
+      }
+    },
+    "/transcribe": {
+      "post": {
+        "summary": "Transcribe Audio",
+        "description": "Transcribes audio using Vispark Transcription API. Supports base64, direct URL, or call log ID input.",
+        "operationId": "transcribeAudio",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "api_key": {
+                    "type": "string",
+                    "description": "Your Vispark API key"
+                  },
+                  "audio_data": {
+                    "type": "string",
+                    "description": "Base64-encoded audio data (optional)"
+                  },
+                  "audio_url": {
+                    "type": "string",
+                    "description": "Direct URL to an audio file (optional)"
+                  },
+                  "call_id": {
+                    "type": "string",
+                    "description": "Existing call log ID (optional)"
+                  },
+                  "mime_type": {
+                    "type": "string",
+                    "description": "MIME type of the audio file (default: audio/wav)",
+                    "default": "audio/wav"
+                  }
+                },
+                "oneOf": [
+                  { "required": ["audio_data"] },
+                  { "required": ["audio_url"] },
+                  { "required": ["call_id"] }
+                ]
+              },
+              "examples": {
+                "base64_audio": {
+                  "summary": "Using base64 audio data",
+                  "value": {
+                    "api_key": "your_api_key_here",
+                    "audio_data": "UklGRiQAAABXQVZFZm10IBAAAAABAAEA...",
+                    "mime_type": "audio/wav"
+                  }
+                },
+                "audio_url": {
+                  "summary": "Using direct URL",
+                  "value": {
+                    "api_key": "your_api_key_here",
+                    "audio_url": "https://example.com/audio.wav"
+                  }
+                },
+                "call_id": {
+                  "summary": "Using existing call log ID",
+                  "value": {
+                    "api_key": "your_api_key_here",
+                    "call_id": "12345"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful transcription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transcription": { "type": "string" },
+                    "user_credits_deducted": { "type": "number" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                },
+                "example": {
+                  "transcription": "AI: Hello, this is an AI assistant...\nUser: Hi, yes I can hear you.",
+                  "user_credits_deducted": 0.5,
+                  "timestamp": "2025-10-28T12:34:56.789012"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid input)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "One of audio_data, audio_url, or call_id is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid API key"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient credits",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "user_credits": {
+                    "value": {
+                      "error": "Insufficient user credits for transcription, recharge at https://playground.aivoco.com",
+                      "required_credits": 0.5,
+                      "current_credits": 0.2
+                    }
+                  },
+                  "admin_units": {
+                    "value": {
+                      "error": "Insufficient admin units for transcription, get now from Vispark Cloud at http://cloud.vispark.in",
+                      "required_units": 0.1234
+                    }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
+          "404": {
+            "description": "Not found (call ID not found or no recording)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                "examples": {
+                  "not_found": {
+                    "value": { "error": "Call id not found or does not belong to user" }
+                  },
+                  "no_recording": {
+                    "value": { "error": "No recording found for this log" }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Rate limit exceeded. Please try again later."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to process transcription with Gemini API"
                 }
               }
             }
           }
         }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
       }
     }
   }

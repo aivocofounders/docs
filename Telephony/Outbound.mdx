@@ -1,0 +1,141 @@
+---
+title: "Outbound"
+description: "Learn how to connect your ROSE speech-to-speech WebSocket to Twilio for outbound calls or your own telephony infrastructure."
+---
+
+# Outbound Telephony Integration (Twilio & Custom Providers)
+
+Our speech-to-speech model can connect directly to telephony systems to make **outbound calls**. Using **Twilio** or your own telephony infrastructure, you can stream audio bi-directionally between a phone call and our **ROSE WebSocket**, enabling real-time, human-like voice AI interactions.
+
+---
+
+## How It Works
+
+Telephony platforms like **Twilio**, **Telnyx**, or **Exotel** support **bi-directional media streaming**, allowing live audio from a phone call to be sent and received in real time via WebSocket.
+
+Our **ROSE WebSocket endpoint** is designed to handle this exact flow — receiving live human speech and responding instantly with generated speech output.
+
+In this example, we’ll use **Twilio** to initiate an outbound call and connect it to the ROSE WebSocket.
+
+---
+
+## Prerequisites
+
+- A **telephony provider** account (Telnyx, Exotel or others)  
+- Your **ROSE API Key** and **Agent ID** from the [AIVOCO Playground](https://playground.aivoco.com)
+
+---
+
+## Example: Outbound Call with Twilio
+
+```python
+from twilio.rest import Client as TwilioClient
+
+# Twilio credentials
+TWILIO_ACCOUNT_SID = "<your_account_sid>"
+TWILIO_AUTH_TOKEN = "<your_auth_token>"
+TWILIO_PHONE_NUMBER = "+121336763"  # Your Twilio phone number
+
+# ROSE Agent credentials
+agent_id = "<your_agent_id>"
+api_key = "<your_api_key>"
+
+# Recipient phone number
+phone_number = "+91XXXXXXXXXX"
+
+# WebSocket URL for streaming
+websocket_url = f"wss://call.aivoco.on.cloud.vispark.in/ws/{api_key}/{agent_id}"
+
+# TwiML response defining the media stream
+twiml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <Stream url="{websocket_url}" />
+  </Connect>
+  <Pause length="3600"/>
+</Response>"""
+
+# Initialize Twilio client
+twilio_client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+# Start outbound call
+call = twilio_client.calls.create(
+    twiml=twiml_content,
+    to=phone_number,
+    from_=TWILIO_PHONE_NUMBER
+)
+
+print(f"Call started: {call.sid}")
+````
+
+---
+
+## Using Other Telephony Providers
+
+our **ROSE WebSocket API** works with **any telephony provider** that supports live media streaming via Websockets.
+
+To connect your telephony platform:
+
+1. Generate your **API Key** and **Agent ID** from the [AIVOCO Playground](https://playground.aivoco.com).
+
+2. Connect your telephony system to the WebSocket endpoint below:
+
+   ```
+   wss://call.aivoco.on.cloud.vispark.in/ws/{api_key}/{agent_id}
+   ```
+
+3. Send and receive live audio streams to and from ROSE using your provider’s streaming API.
+
+4. Once connected, the ROSE model will handle real-time speech understanding and generation.
+
+**Tip:** You can easily replace your exisitng WebSocket endpoint with our websockts both **outbound** and **inbound** call flows.
+
+---
+
+## Key Parameters
+
+| Parameter       | Description                                       |
+| --------------- | ------------------------------------------------- |
+| `api_key`       | Your ROSE API key for authentication              |
+| `agent_id`      | The agent you want to connect to                  |
+| `websocket_url` | The live bidirectional audio stream endpoint      |
+
+---
+
+## Helpful Telephony Resources
+
+* [Twilio Media Streams Overview](https://www.twilio.com/docs/voice/media-streams/overview)
+* [Twilio Outbound Calls API](https://www.twilio.com/docs/voice/api/call-resource#create-a-call-resource)
+* [Exotel API Reference](https://developer.exotel.com/api)
+* [Plivo Voice API](https://www.plivo.com/docs/voice/)
+* [Telnyx Call Control API](https://developers.telnyx.com/docs/api/v2/overview)
+
+---
+
+## Troubleshooting & Debugging
+
+**1. Invalid credentials:**
+Double-check your Twilio/telephony credentials and ROSE API key.
+
+**2. Call connects but no audio:**
+Ensure your WebSocket endpoint is reachable and supports bi-directional audio.
+
+**3. Call not initiating:**
+Your telephony number must be verified (for trial or restricted accounts).
+
+**4. Test locally:**
+Use [ngrok](https://ngrok.com/) to tunnel your WebSocket or HTTP endpoints for local testing.
+
+---
+
+## Next Steps
+
+* Replace placeholders (`api_key`, `agent_id`, and telephony credentials`) in your code.
+* Run the script to initiate a live outbound call.
+* Experience a real-time voice conversation with your **ROSE Voice Agent**.
+
+---
+
+**© 2025 AIVOCO** | ROSE — Real-Time Speech-to-Speech Intelligence
+
+```

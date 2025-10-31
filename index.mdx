@@ -1,11 +1,24 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Welcome to AIVOCO's Speech-to-Speech API documentation"
 ---
 
-## Setting up
+# Welcome to AIVOCO’s Speech-to-Speech API 
 
-Get your documentation site up and running in minutes.
+Meet **ROSE**, AIVOCO’s real-time **speech-to-speech model** that brings voice AI agents to life.  
+Whether you’re building **telecalling agents**, **AI receptionists**, or **human-like sales agents**, ROSE lets your applications **listen, understand, and talk back**, all through a natural, continuous speech pipeline.
+
+Our APIs and WebSocket infrastructure make it simple to:
+- Create and manage **voice agents**
+- Connect them to **telephony systems** or **web apps**
+- Enable **real-time bi-directional audio streaming**
+- Transcribe and analyze your calls, instantly.
+
+---
+
+## Quick Start
+
+Get started in just a few minutes with our **three-step process**.
 
 <Card
   title="Start here"
@@ -13,85 +26,120 @@ Get your documentation site up and running in minutes.
   href="/quickstart"
   horizontal
 >
-  Follow our three step quickstart guide.
+  Follow our Quickstart Guide to create your first Speech-to-Speech agent.
 </Card>
 
-## Make it yours
+---
 
-Design a docs site that looks great and empowers your users.
+## What You Can Build
+
+With AIVOCO’s Speech-to-Speech platform, you can bring real-time conversational AI to your business or app.
 
 <Columns cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Voice AI Sales Agents"
+    icon="phone"
+    href="/api-reference/endpoint/create"
   >
-    Edit your docs locally and preview them in real time.
+    Build voice-based agents that can make outbound calls, qualify leads, and close deals autonomously.
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Telecalling Agents"
+    icon="headset"
+    href="/api-reference/endpoint/update"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Automate customer support or follow-up calls with natural-sounding speech-to-speech interactions.
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
+    title="In-App Voice Assistants"
+    icon="comments"
+    href="/api-reference/endpoint/get"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Add human-like conversational capabilities inside your product or website with our WebSocket API.
+  </Card>
+  <Card
+    title="Real-Time Transcription"
+    icon="keyboard"
+    href="/api-reference/endpoint/transcription"
+  >
+    Get instant transcripts and conversation analytics from live or recorded calls.
   </Card>
 </Columns>
 
-## Create beautiful pages
+---
 
-Everything you need to create world-class documentation.
+## How It Works
+
+The AIVOCO Speech-to-Speech flow is designed to be **modular** and **real-time**:
+
+1. **Create an Agent** — Define your agent’s name, voice, and system behavior via the `/agents` API.  
+2. **Connect via WebSocket** — Use our secure endpoint to establish a live speech stream between your app or telephony system and ROSE.  
+3. **Integrate Telephony** — Connect with Twilio, Exotel, or any SIP trunking provider using our `wss://call.aivoco.on.cloud.vispark.in/ws/{api_key}/{agent_id}` WebSocket.  
+4. **Transcribe Conversations** — Retrieve full transcripts and insights from the **Transcription endpoint** using your call ID.  
+
+These steps are covered in detail in the [Quickstart Guide →](/quickstart)
+
+---
+
+## Authentication
+
+Every API request requires authentication via an API key.
+
+To generate your key:
+- Log in to your [AIVOCO Playground](https://playground.aivoco.com)
+- Go to your dashboard → **API Keys**
+- Copy your key and include it in the `X-API-Key` header or WebSocket path
+
+Example:
+```bash
+X-API-Key: YOUR_API_KEY
+````
+
+---
+
+## Supported Integrations
+
+AIVOCO supports multiple channels for connecting your agents:
 
 <Columns cols={2}>
   <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
+    title="Telephony (Twilio, Exotel, Telnyx)"
+    icon="phone"
+    href="/telephony/outbound"
   >
-    Use MDX to style your docs pages.
+    Connect your ROSE agent to real phone calls using standard telephony providers.
   </Card>
   <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
+    title="Web Applications"
+    icon="globe"
+    href="/api-reference/endpoint/websocket"
   >
-    Add sample code to demonstrate how to use your product.
+    Stream voice interactions directly in your browser or app using WebSocket APIs.
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Custom Integrations"
+    icon="plug"
+    href="/api-reference/endpoint/function-calling"
   >
-    Display images and other media.
+    Extend your agents with function calling and real-world data (e.g., weather, CRM updates).
   </Card>
   <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
+    title="Analytics and Transcription"
+    icon="waveform"
+    href="/api-reference/endpoint/transcription"
   >
-    Write once and reuse across your docs.
+    Convert any voice interaction into structured data using our transcription service.
   </Card>
 </Columns>
 
-## Need inspiration?
+---
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+## Need Help?
+
+If your telephony provider or integration type isn’t available, we’re happy to help.
+
+📧 **Contact us:** <a href="mailto:aivocofounders@gmail.com">[aivocofounders@gmail.com](mailto:aivocofounders@gmail.com)</a>
+
+---
+
+**© 2025 AIVOCO** | **ROSE – Real-Time Speech-to-Speech Intelligence**

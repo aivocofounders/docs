@@ -1,0 +1,66 @@
+---
+title: "Inbound"
+description: " The Inbound URL allows telephony platforms to seamlessly route incoming calls directly into the ROSE Speech-to-Speech (S2S) system.   We’ve built a universal endpoint that supports configuration for multiple telephony providers  meaning you can connect your existing setup (Twilio, Telnyx, Exotel, etc.) with ROSE without custom adapters."
+---
+
+# Inbound Telephony Integration
+
+ROSE supports real-time **speech-to-speech** communication via WebSocket connections, allowing seamless integration with leading telephony providers.
+
+As our Speech-to-Speech model supports WebSocket integration, it can **natively connect with multiple telephony platforms** to receive live inbound calls and route them directly to an AIvoco Agent.
+
+---
+
+## 🔗 Inbound URL Format
+
+Use the following endpoint to connect your inbound call flow to ROSE:
+
+```
+https://call.aivoco.on.cloud.vispark.in/inbound?api_key=YOUR_KEY&agent_id=AGENT_ID&provider=PROVIDER_NAME
+```
+
+Replace:
+
+- `YOUR_KEY` → your AIvoco API key
+- `AGENT_ID` → the UUID or ID of your registered speech agent
+- `PROVIDER_NAME` → one of the supported telephony partners
+
+---
+
+## Supported Telephony Providers
+
+ROSE seamlessly integrates with the following telephony platforms:
+
+- [Twilio](https://www.twilio.com/en-us)
+- [Telnyx](https://telnyx.com/)
+- [Exotel](https://exotel.com/)
+- [Vonage](https://www.vonage.com/)
+- [Plivo](https://www.plivo.com/)
+- [Bandwidth](https://dev.bandwidth.com/)
+- [SignalWire](https://signalwire.com/)
+- [MessageBird](https://developers.messagebird.com/)
+
+Each provider can use the same **inbound URL** format with their own webhook or call forwarding setup.
+
+If your required telephony provider isn’t available, please reach out to us at 
+<a href="mailto:aivocofounders@gmail.com">aivocofounders@gmail.com</a> and we’ll be happy to help you integrate it.
+
+---
+
+## ⚙️ Example
+
+For a Telnyx connection:
+
+```
+url*&provider=telnyx**
+```
+
+```
+https://call.aivoco.on.cloud.vispark.in/inbound?api_key=abc123&agent_id=789xyz&provider=telnyx
+```
+
+The ROSE model automatically establishes a **WebSocket session** between your agent and the telephony audio stream, enabling full-duplex real-time conversation.
+
+---
+
+**© 2025 AIVOCO** | ROSE – Real-Time Speech-to-Speech Intelligence

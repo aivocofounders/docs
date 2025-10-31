@@ -1,80 +1,74 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Start building your first Speech-to-Speech Voice AI Agent with AIVOCO"
 ---
 
-## Get started in three steps
 
-Get your documentation site running locally and make your first customization.
+Welcome — this quickstart will get you up and running with **ROSE**, AIVOCO’s real-time Speech-to-Speech (S2S) model, in three simple steps.
 
-### Step 1: Set up your local environment
+> **Goal:** Create a voice AI agent, connect it to live audio (web or telephony), and capture transcriptions.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+---
 
-### Step 2: Deploy your changes
+## Step 1 — Get your API key
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+1. Sign in to the AIVOCO Playground: `https://playground.aivoco.com`  
+2. Open **Dashboard → API Keys** and generate (or copy) your API key.  
+3. Keep the key secure — do not publish it.
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+> You will use this API key to authenticate both HTTP requests and WebSocket connections.
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+---
 
-### Step 3: Go live
+## Step 2 — Create your Agent
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+Create a new Speech-to-Speech agent using the **Create Agent** docs.
 
-## Next steps
+- Follow: [Create Agent](/api-reference/endpoint/create)  
+- Provide a `name`, a `system_message` that defines the agent persona, and a `voice` (`boy` or `girl`).  
+- Optionally add `functions` to enable function-calling behavior from the agent.
 
-Now that you have your docs running, explore these key features:
+When created, note the returned **agent_id** — you will need it to connect your WebSocket session.
 
-<CardGroup cols={2}>
+---
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+## Step 3 — Connect via WebSocket (Web or Telephony)
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+Use our WebSocket endpoint to stream audio bi-directionally with ROSE. This is the same mechanism whether you connect from a browser app or bridge an external telephony provider.
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+**WebSocket URL (example):**
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+```
+wss://call.aivoco.on.cloud.wispok.in/ws/{API_KEY}/{AGENT_ID}
+```
 
-</CardGroup>
+Replace `{API_KEY}` and `{AGENT_ID}` with your values from Step 1 and Step 2.
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+Once connected you can:
+- Send audio frames (client → ROSE)
+- Receive synthesized audio responses (ROSE → client)
+- Maintain session context for multi-turn conversations
+
+---
+
+## Transcription (After the Call)
+
+After a call ends you can obtain a transcription using the Transcription endpoint (see the Transcription docs). The typical flow is:
+
+1. Make your call (web or telephony) to the agent connected to ROSE.  
+2. Note the `call_id` returned or available in your call logs.  
+3. Use the Transcription API to fetch the text transcript for that `call_id`.
+
+See: [Transcribe Audio](/api-reference/endpoint/transcription)
+
+---
+
+## Tips & Notes
+
+- Use the Playground to test agents interactively before wiring production telephony.  
+- If your telephony provider isn't supported out of the box, contact us at <a href="mailto:aivocofounders@gmail.com">aivocofounders@gmail.com</a>.  
+- Protect your API key — treat it like a password.
+
+---
+
+**© 2025 AIVOCO** | **ROSE – Real-Time Speech-to-Speech Intelligence**

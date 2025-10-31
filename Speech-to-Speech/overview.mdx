@@ -1,0 +1,118 @@
+# 🌹 ROSE: Real-Time Speech-to-Speech Model
+
+## Overview
+
+**ROSE** is AIvoco’s flagship **Speech-to-Speech (S2S)** model — a real-time, human-like conversational AI capable of listening, thinking, and responding in natural speech.  
+It enables developers to build **voice agents** that sound alive, understand context, and adapt dynamically during a conversation.
+
+ROSE is optimized for **telephony**, **voice automation**, **interactive agents**, and **AI-driven customer experiences**.  
+It supports **real-time bi-directional streaming**, **agent customization**, **transcription**, and **function calling**.
+
+---
+
+## Key Capabilities
+
+| Feature | Description |
+|----------|-------------|
+|  **Speech-to-Speech** | Real-time conversion of human speech into natural, emotional AI speech |
+|  **Telephony Integration** | Connects directly to inbound and outbound calls |
+|  **Custom Agents** | Define unique personas with system prompts, tone, and style |
+|  **Transcription** | Real-time or batch transcription of voice streams |
+|  **Function Calling** | Enables voice agents to call APIs and perform real-world actions |
+|  **Multilingual** | Supports multiple languages and accents |
+|  **Streaming Interface** | Low-latency WebSocket for live interaction |
+
+---
+
+## Architecture Overview
+
+ROSE integrates with the AIvoco platform as part of a modular system:
+
+```
+[ User Speech ]
+      ↓
+[ Telephony / Mic Input ]
+      ↓
+[ ROSE Model (Speech-to-Speech Core) ]
+      ↓
+ ├── Agent Logic (Persona + Context)
+ ├── Function Calling (External APIs)
+ └── Transcription Pipeline
+      ↓
+[ Audio Response to User ]
+```
+
+---
+
+##  API Endpoints
+
+| Type | Endpoint | Description |
+|------|-----------|-------------|
+| **WebSocket** | `wss://call.aivoco.on.cloud.vispark.in/ws/{api_key}/{agent_uuid}` | Real-time speech-to-speech connection |
+| **Agents API** | `/agents` | Create, list, and manage S2S agents |
+| **Telephony API** | `/telephony/*` | Connect ROSE to inbound/outbound calls |
+| **Transcription API** | `/transcription` | Real-time or batch transcription |
+| **Function Calling API** | `/functions/*` | Register or call external functions |
+
+---
+
+##  Getting Started
+
+### Step 1 — Create an Agent
+Define an agent persona using the **Agents API**.
+
+```bash
+POST /agents
+{
+  "name": "Rose Assistant",
+  "system_message": "You are a friendly, conversational assistant.",
+  "voice": "girl"
+}
+```
+
+### Step 2 — Start a Connection
+Connect to the WebSocket for real-time voice streaming.
+
+```bash
+wss://call.aivoco.on.cloud.vispark.in/ws/YOUR_API_KEY/AGENT_UUID
+```
+
+### Step 3 — Stream Audio
+- Send base64-encoded audio chunks
+- Receive real-time audio responses
+- Maintain session state and context
+
+---
+
+## Example Use Cases
+
+- **Call Center Automation** — AI answering and handling customer calls  
+- **Voice Companions** — Human-like interactive personalities  
+- **Voice-to-Voice Translation** — Speak and get responses in another language  
+- **Sales Assistants** — Outbound calling agents for leads and appointments  
+- **Smart IVR Systems** — Dynamic, conversational phone menus
+
+---
+
+## Model Behavior and Persona Control
+
+ROSE adapts based on the **system message** of its agent.  
+For example:
+
+> "You are a helpful and empathetic customer support representative."  
+> "You are a witty, confident sales assistant who loves closing deals."
+
+This allows developers to tailor the **tone, personality, and conversational depth** of their AI voice.
+
+---
+
+## Notes
+
+- ROSE is currently available for **real-time streaming** and **telephony** use cases.  
+- Requires an active **API key** and **sufficient credits**.  
+- Supported voices: `{boy, girl}` (more coming soon).  
+- For telephony integration, see `telephony.md` under this folder.
+
+---
+
+**© 2025 AIvoco** | ROSE – Real-Time Speech-to-Speech Intelligence

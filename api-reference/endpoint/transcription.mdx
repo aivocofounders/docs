@@ -1,0 +1,18 @@
+---
+title: 'Transcribe Audio'
+openapi: 'POST /transcribe'
+---
+
+#  Transcribe Audio API
+
+The Transcription API lets you transcribe calls or audio files into text with speaker labels (`AI:` / `User:`).  
+You can provide audio as **base64**, **a direct URL**, or **an existing call log ID**.
+
+---
+
+##  Authentication
+
+All requests require your Aivoco **API key**.
+
+```bash
+X-API-Key: YOUR_API_KEY

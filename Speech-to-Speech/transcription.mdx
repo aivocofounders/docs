@@ -1,0 +1,305 @@
+# Transcription API Documentation
+
+## Endpoint: `/transcribe`
+
+
+**Method:** POST\
+**Authentication:** API Key (required)
+
+---
+
+##  Features
+
+- Transcribe audio files using **Transcription API endpoint.**
+- Supports multiple input methods (**base64**, **URL**, or **call log ID**)
+- Automatic **speaker identification (AI vs User)**
+- Handles **credit and unit-based billing**
+- **Admin mode** for enterprise use
+
+---
+
+##  Request Format
+
+### Base Request
+
+```json
+{
+  "api_key": "your_api_key",
+  "audio_data": "base64_encoded_audio (optional)",
+  "audio_url": "https://url-to-audio-file (optional)",
+  "call_id": "12345 (optional)",
+  "mime_type": "audio/wav (optional, default: audio/wav)"
+}
+```
+
+> **Note:** Exactly **one** of `audio_data`, `audio_url`, or `call_id` must be provided.
+
+---
+
+##  Input Methods
+
+### Method 1: Base64 Audio Data
+
+Upload audio directly as base64 encoded data.
+
+```json
+{
+  "api_key": "your_api_key_here",
+  "audio_data": "UklGRiQAAABXQVZFZm10IBAAAAABAAEA...",
+  "mime_type": "audio/wav"
+}
+```
+
+**Supported MIME types:**
+
+- `audio/wav`
+- `audio/mp3`
+- `audio/mp4` (m4a)
+- `audio/ogg`
+
+---
+
+### Method 2: Audio URL
+
+Provide a direct URL to the audio file.
+
+```json
+{
+  "api_key": "your_api_key_here",
+  "audio_url": "https://example.com/audio/recording.wav"
+}
+```
+
+The system automatically downloads and processes the audio file.
+
+---
+
+### Method 3: Log ID
+
+Use an existing call log ID to transcribe a previous call recording.
+
+```json
+{
+  "api_key": "your_api_key_here",
+  "call_id": "123"
+}
+```
+
+**Requirements:**
+
+- The log must belong to the authenticated user
+- The log must have a valid recording URL
+
+---
+
+##  Response Format
+
+###  Success Response (200 OK)
+
+```json
+{
+  "transcription": "AI: Hello, this is an AI assistant...\nUser: Hi, yes I can hear you.\n...",
+  "user_credits_deducted": 0.0,
+  "timestamp": "2025-10-28T12:34:56.789012"
+}
+```
+
+**Fields:**
+
+| Field                   | Description                                   |
+| ----------------------- | --------------------------------------------- |
+| `transcription`         | Full conversation text with speaker tags      |
+| `user_credits_deducted` | Credits used for this transcription           |
+| `timestamp`             | Time of transcription completion (ISO format) |
+
+---
+
+##  Error Responses
+
+### 400 Bad Request
+
+```json
+{"error": "One of audio_data, audio_url, or call_id is required"}
+```
+
+```json
+{"error": "Only one of audio_data, audio_url, or call_id should be provided"}
+```
+
+```json
+{"error": "Audio must be at least 1 second long"}
+```
+
+```json
+{"error": "Audio must not exceed 30 minutes"}
+```
+
+### 401 Unauthorized
+
+```json
+{"error": "Invalid API key"}
+```
+
+### 402 Payment Required
+
+```json
+{"error": "Insufficient credits, recharge at https://playground.aivoco.com"}
+```
+
+```json
+{
+  "error": "Insufficient admin units for transcription, get now from Vispark Cloud at http://cloud.vispark.in",
+  "required_units": 0.1234
+}
+```
+
+```json
+{
+  "error": "Insufficient user credits for transcription, recharge at https://playground.aivoco.com",
+  "required_credits": 0.5,
+  "current_credits": 0.2
+}
+```
+
+### 404 Not Found
+
+```json
+{"error": "Call id not found or does not belong to user"}
+```
+
+```json
+{"error": "No recording found for this log"}
+```
+
+### 429 Too Many Requests
+
+```json
+{"error": "Rate limit exceeded. Please try again later."}
+```
+
+### 500 Internal Server Error
+
+```json
+{"error": "Failed to process transcription with Gemini API"}
+```
+
+---
+
+##  Pricing
+
+### Admin Units
+
+- **Rate:** 0.1 units per minute of audio
+- Deducted from admin's **Vispark Cloud** account
+
+### User Credits
+
+- **Rate:** `cost_transcription` from user profile per minute
+- Default: 0 (configurable per user)
+
+**Example:**
+
+- 2 min audio → 0.2 admin units + 1.0 user credits (if cost_transcription = 0.5)
+
+---
+
+##  Constraints
+
+| Constraint       | Limit                  |
+| ---------------- | ---------------------- |
+| Minimum duration | 1 second               |
+| Maximum duration | 30 minutes             |
+| Rate limit       | 60 requests/min per IP |
+| Authentication   | Required via API key   |
+
+---
+
+## Example Usage
+
+### cURL Example
+
+```bash
+curl -X POST https://call.aivoco.on.cloud.vispark.in/transcribe   -H "Content-Type: application/json"   -d '{
+    "api_key": "your_api_key_here",
+    "audio_url": "https://example.com/recording.wav"
+  }'
+```
+
+### Python Example
+
+```python
+import requests
+
+url = "https://call.aivoco.on.cloud.vispark.in/transcribe"
+payload = {"api_key": "your_api_key_here", "call_id": "123"}
+
+response = requests.post(url, json=payload)
+data = response.json()
+
+if response.status_code == 200:
+    print(f"Transcription:\n{data['transcription']}")
+    print(f"Credits used: {data['user_credits_deducted']}")
+else:
+    print(f"Error: {data['error']}")
+```
+
+### JavaScript Example
+
+```javascript
+const url = 'https://call.aivoco.on.cloud.vispark.in/transcribe';
+const payload = {
+  api_key: 'your_api_key_here',
+  audio_data: 'UklGRiQAAABXQVZFZm10...',
+  mime_type: 'audio/wav'
+};
+
+fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+})
+.then(res => res.json())
+.then(data => {
+  if (data.transcription) console.log('Transcription:', data.transcription);
+  else console.error('Error:', data.error);
+})
+.catch(err => console.error('Request failed:', err));
+```
+
+---
+
+##  Transcription Format
+
+Example output with speaker labeling:
+
+```
+AI: Hello, this is an AI assistant calling about your recent inquiry.
+User: Hi, yes I can hear you.
+AI: Great! I'm calling to discuss your application. Do you have a few minutes?
+User: Yes, sure. Go ahead.
+AI: Wonderful. I wanted to confirm your contact information first.
+User: [unclear] what was that?
+AI: I said I need to confirm your contact information. Can you verify your email address?
+User: Oh yes, it's john@example.com
+```
+
+**Highlights:**
+
+- Clear `AI:` and `User:` labels
+- Chronological conversation flow
+- Marks unclear sections with `[unclear]`
+
+---
+
+##  Notes
+
+- Audio files are **processed in-memory** and not stored
+- Duration estimation accurate for WAV; approximate for others
+- Uses **Vispark Vision (small)** model for transcription
+- Supports **multilingual** input
+
+---
+
+---
+
+**© 2025 AIvoco** | Transcription | Speech-to-Text Intelligence

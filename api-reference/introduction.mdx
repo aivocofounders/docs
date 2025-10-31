@@ -1,33 +1,37 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'Get started with ROSE, our real-time Speech-to-Speech (S2S) agent creation API.'
 ---
 
 <Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
+  Welcome to the **Speech-to-Speech (S2S) Agent Creation API**, powered by our model **ROSE**.  
+  If you're building human-like voice AI agents that can listen, think, and respond naturally, you're in the right place.
 </Note>
 
 ## Welcome
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+Meet **ROSE**, our real-time **Speech-to-Speech model** built for next-generation voice AI agents.  
+Unlike traditional text-based systems, ROSE allows direct **voice-to-voice interaction**, enabling agents that sound expressive, react instantly, and feel more human.  
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+This documentation will guide you through every step of building your own **voice AI agent**, from creation to live interaction.
+
+---
+
+## Getting Started
+
+Building your voice agent with ROSE is simple:
+
+1. **Authenticate** — Secure your API calls with a bearer token.
+2. **Create an Agent** — Use our `/agents` endpoints to create and manage your voice AI agents.  
+3. **Connect via WebSocket** — Communicate with ROSE in real time using WebSocket connections.  
+   - You can connect over **web** or **telephony** to exchange live audio streams.   
+
+---
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Before making API calls, you’ll need an API key.  
+You can generate one by logging in to your [AIvoco Dashboard](https://playground.aivoco.com).
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+```bash
+Authorization: Bearer <YOUR_API_KEY>
