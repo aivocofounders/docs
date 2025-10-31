@@ -1,0 +1,283 @@
+# **Aivoco Real-Time Voice Call API Documentation**
+
+## Overview
+
+The **Aivoco Real-Time Call API** enables developers to initiate a live, two-way voice conversation with the AI by connecting to a WebSocket endpoint.
+Once connected, the client streams live microphone audio (`audio/x-mulaw`) to the AI, while receiving real-time, generated speech responses back through the same connection — enabling fully interactive, natural voice communication.
+
+---
+
+## **Base URL**
+
+```
+wss://call.aivoco.on.cloud.vispark.in/ws/{apiKey}/{agentId}
+```
+
+### Parameters
+
+| Parameter | Type     | Required | Description                                                    |
+| --------- | -------- | -------- | -------------------------------------------------------------- |
+| `apiKey`  | `string` | ✅        | Your Aivoco API key (unique for each user)                  |
+| `agentId` | `string` | ✅        | Agent identifier |
+
+Create agents via [UI](playground.aivoco.com) or - Follow: [Create Agent](/api-reference/endpoint/create)  
+API keys from playground.aivoco.com
+
+Example:
+
+```
+wss://call.aivoco.on.cloud.vispark.in/ws/UmhzzHeO20CTJ8gndiYcO5/be91326f-06ad-4d9d-9f433-e1e0d2334be4
+```
+
+---
+
+## ⚙️ **Authentication**
+
+Authentication is done via **WebSocket path parameters**:
+
+* The `apiKey` must be a valid Aivoco-issued key.
+* The `agentId` identifies the calling agent.
+
+If either is invalid, the connection will be rejected.
+
+---
+
+## 🎙️ **Connection Flow**
+
+### 1. Connect to WebSocket
+
+Client establishes a secure WebSocket connection using the `apiKey` and `agentId`.
+
+```js
+const ws = new WebSocket(`wss://call.aivoco.on.cloud.vispark.in/ws/${apiKey}/${agentId}`);
+```
+
+---
+
+### 2. Send an Empty Handshake
+
+Once the WebSocket opens, send an **empty message** (`""`) to trigger the handshake.
+
+```json
+""
+```
+
+---
+
+### 3. Send a `start` Event
+
+After handshake, send a `start` message that defines your stream.
+
+```json
+{
+  "event": "start",
+  "sequenceNumber": "1",
+  "start": {
+    "accountSid": "AC1234567890abcdef",
+    "streamSid": "MZb3e98b94a3d",
+    "callSid": "CA09d8724bce1",
+    "tracks": ["inbound"],
+    "customParameters": {},
+    "mediaFormat": {
+      "encoding": "audio/x-mulaw",
+      "sampleRate": 8000,
+      "channels": 1
+    }
+  },
+  "streamSid": "MZb3e98b94a3d"
+}
+```
+
+| Field            | Type              | Description                        |
+| ---------------- | ----------------- | ---------------------------------- |
+| `event`          | `"start"`         | Type of message event              |
+| `sequenceNumber` | `string`          | Sequential ID for message ordering |
+| `streamSid`      | `string`          | Unique stream session ID           |
+| `mediaFormat`    | `object`          | Format of audio being sent         |
+| `encoding`       | `"audio/x-mulaw"` | Audio encoding type                |
+| `sampleRate`     | `8000`            | Required sample rate (Hz)          |
+| `channels`       | `1`               | Mono audio                         |
+
+---
+
+### 4. Stream Audio (`media` Event)
+
+After the start message, stream microphone data in chunks encoded as **Base64 µ-law audio**.
+
+```json
+{
+  "event": "media",
+  "media": {
+    "track": "inbound",
+    "chunk": 25,
+    "timestamp": "1730446223000",
+    "payload": "q0aZmJqampqamJiYmJiYmJgY..."
+  },
+  "sequenceNumber": 25
+}
+```
+
+| Field       | Type        | Description                     |
+| ----------- | ----------- | ------------------------------- |
+| `event`     | `"media"`   | Indicates audio data            |
+| `track`     | `"inbound"` | Audio direction                 |
+| `chunk`     | `integer`   | Incremental chunk counter       |
+| `timestamp` | `string`    | Unix timestamp                  |
+| `payload`   | `string`    | Base64-encoded µ-law audio data |
+
+---
+
+### 5. Receive Audio Responses
+
+Aivoco will send back similar `media` messages for AI-generated audio output:
+
+```json
+{
+  "event": "media",
+  "media": {
+    "track": "outbound",
+    "chunk": 42,
+    "timestamp": "1730446230112",
+    "payload": "k0ZGRkZGRkZGRkZGRkZGRgYGB..."
+  },
+  "sequenceNumber": 42
+}
+```
+
+Clients should decode the Base64 payload, convert µ-law to PCM, and play the sound through the browser audio context.
+
+---
+
+## **Other Event Types**
+
+| Event          | Description                                |
+| -------------- | ------------------------------------------ |
+| `connected`    | Sent when connection established           |
+| `disconnected` | Sent when the connection closes            |
+| `status`       | Optional message with diagnostic info      |
+| `error`        | Returned if authentication or format fails |
+
+---
+
+## **Audio Requirements**
+
+| Parameter   | Required    | Value              |
+| ----------- | ----------- | ------------------ |
+| Encoding    | ✅           | `audio/x-mulaw`    |
+| Sample rate | ✅           | `8000 Hz`          |
+| Channels    | ✅           | `1 (mono)`         |
+| Chunk size  | Recommended | ≤ 200 ms per frame |
+| Payload     | ✅           | Base64 encoded     |
+
+---
+
+## **Error Responses**
+
+| Code   | Message                        | Description                     |
+| ------ | ------------------------------ | ------------------------------- |
+| `4001` | `Invalid API Key`              | The provided API key is invalid |
+| `4002` | `Invalid Agent ID`             | Agent ID not recognized         |
+| `1006` | `Connection closed abnormally` | Network or backend disconnect   |
+| `5000` | `Internal Server Error`        | Unexpected server-side error    |
+
+---
+
+## **Ending the Call**
+
+To end the session, simply close the WebSocket:
+
+```js
+ws.close(1000, "Call ended");
+```
+
+Or send an explicit stop event:
+
+```json
+{
+  "event": "stop",
+  "sequenceNumber": 99,
+  "streamSid": "MZb3e98b94a3d"
+}
+```
+
+---
+
+## **Client Libraries**
+
+You can use any WebSocket-compatible library:
+
+| Language       | Library                | Example                         |
+| -------------- | ---------------------- | ------------------------------- |
+| **JavaScript** | `WebSocket` (built-in) | `new WebSocket(url)`            |
+| **Python**     | `websockets`           | `await websockets.connect(url)` |
+| **Node.js**    | `ws`                   | `const ws = new WebSocket(url)` |
+
+---
+
+## **Example Connection Flow (JS)**
+
+```js
+const ws = new WebSocket("wss://call.aivoco.on.cloud.vispark.in/ws/YOUR_API_KEY/YOUR_AGENT_ID");
+
+ws.onopen = () => {
+  ws.send("");
+  ws.send(JSON.stringify({
+    event: "start",
+    sequenceNumber: "1",
+    start: {
+      accountSid: "ACexample",
+      streamSid: "MZexample",
+      callSid: "CAexample",
+      tracks: ["inbound"],
+      mediaFormat: { encoding: "audio/x-mulaw", sampleRate: 8000, channels: 1 }
+    }
+  }));
+};
+
+ws.onmessage = (e) => console.log("Received:", e.data);
+ws.onerror = (e) => console.error("Error:", e);
+ws.onclose = () => console.log("Disconnected");
+```
+
+---
+
+## **Quick Summary**
+
+| Step | Description                                 |
+| ---- | ------------------------------------------- |
+| 1️⃣  | Open WebSocket using `apiKey` + `agentId`   |
+| 2️⃣  | Send empty handshake message                |
+| 3️⃣  | Send `start` JSON event                     |
+| 4️⃣  | Begin streaming µ-law audio chunks          |
+| 5️⃣  | Receive and play AI-generated `media` audio |
+| 6️⃣  | Close WebSocket or send `stop` to end call  |
+
+## Example Reference
+
+You can find a working demo showing how to connect to the Aivoco Real-Time API (without S2S WebSocket) on our GitHub repository:
+
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-black?logo=github&style=flat-square)](https://github.com/aivocofounders/ROSE-API-2.0/blob/main/demo.html)
+*[Aivoco Real-Time Call Demo on GitHub](https://github.com/aivocofounders/ROSE-API-2.0/blob/main/demo.html)*
+
+
+The repository includes:
+- Example code for establishing a WebSocket connection  
+- Audio streaming setup (microphone to AI and back)  
+- Step-by-step instructions to run the demo locally
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

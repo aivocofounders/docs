@@ -24,6 +24,7 @@
           {
             "group": "Models",
             "pages": [
+              "Models/languages",
               "Models/rose",
               "Models/vision"
             ]
@@ -33,6 +34,7 @@
             "pages": [
               "Speech-to-Speech/overview",
               "Speech-to-Speech/agents",
+              "Speech-to-Speech/connect",
               "Speech-to-Speech/functioncalling",
               "Speech-to-Speech/transcription"
             ]
@@ -67,7 +69,8 @@
               "api-reference/endpoint/get",
               "api-reference/endpoint/update",
               "api-reference/endpoint/create",
-              "api-reference/endpoint/delete"
+              "api-reference/endpoint/delete",
+              "api-reference/endpoint/connect"
             ]
           },
           {
@@ -88,11 +91,6 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://www.aivoco.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
           "anchor": "Blog",
           "href": "https://www.aivoco.com/blogs.html",
           "icon": "newspaper"
@@ -108,7 +106,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:aivocofounders@gmail.com"
+        "href": "mailto:tanusri@aivoco.com"
       }
     ],
     "primary": {
@@ -131,9 +129,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/MTanusri146471",
+      "github": "https://github.com/aivocofounders",
+      "linkedin": "https://www.linkedin.com/in/vansh-one/"
     }
   }
 }
