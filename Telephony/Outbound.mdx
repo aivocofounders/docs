@@ -11,6 +11,14 @@ Our speech-to-speech model can connect directly to telephony systems to make **o
 
 ## How It Works
 
+<Frame>
+  <img
+    src="/images/flowdiagram.svg"
+    alt="Flow diagram showcasing ROSE speech-to-speech model connection architecture"
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
 Telephony platforms like **Twilio**, **Telnyx**, or **Exotel** support **bi-directional media streaming**, allowing live audio from a phone call to be sent and received in real time via WebSocket.
 
 Our **ROSE WebSocket endpoint** is designed to handle this exact flow — receiving live human speech and responding instantly with generated speech output.
