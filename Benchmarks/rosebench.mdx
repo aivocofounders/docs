@@ -9,6 +9,12 @@ description: "An open-source benchmarking and evaluation framework for Speech-to
 
 This comprehensive benchmarking framework evaluates **Speech-to-Speech (S2S) AI models** across multiple critical dimensions. The framework tests models end-to-end through voice interactions, measuring performance on real-world conversational scenarios using industry-standard evaluation datasets and methodologies.
 
+### Open-Source Benchmarks
+
+Our model **Rose (Aivoco v1)** was evaluated on **open-source benchmarks** — available on [GitHub](https://github.com/aivocofounders/sts-bench).  
+You can **evaluate our benchmarks** and **fact-check our model’s performance** using the framework.
+
+
 ### Framework Architecture
 
 The framework consists of **9 specialized benchmarks** that cover all major aspects of speech-to-speech AI evaluation:
@@ -79,12 +85,12 @@ This framework leverages **Vispark's cutting-edge AI models** available at https
 
 ### 🏆 Model Performance Rankings (As of August 30, 2025)
 
-| Model                     | Boot Time | Latency  | Code Gen | Function Calling | Emotions | Naturalness | Expressiveness | Ethics | HLE       | Overall Rank |
-| ------------------------- | --------- | -------- | -------- | ---------------- | -------- | ----------- | -------------- | ------ | --------- | ------------ |
-| **Rose (Aivoco v1)**      | 6.0s 🟡   | 0.69s 🟢 | 94% 🟢   | 70.29% 🟢        | 89% 🟢   | 91% 🟢      | 91% 🟢         | 99% 🟢 | 41.21% 🟡 | 🥇 **1st**   |
-| **OpenAI (GPT Realtime)** | 0.8s 🟢   | 0.82s 🟡 | 78% 🟡   | 50.27% 🟡        | 94% 🟢   | 89% 🟢      | 98% 🟢         | 83% 🟢 | 18.3% 🟡  | 🥈 **2nd**   |
-| **Google (Gemini 2.5)**   | 3.0s 🟡   | 1.5s 🟡  | 44% 🟡   | 37.06% 🟡        | 82% 🟡   | 51% 🟡      | 91% 🟢         | 27% 🟡 | 6.7% 🟡   | 🥉 **3rd**   |
-| **Sesame (CSM 1)**        | 3.0s 🟡   | 0.76s 🟡 | 7% 🔴    | 19.25% 🔴        | 88% 🟢   | 19% 🔴      | 91% 🟢         | 0% 🔴  | 0.6% 🔴   | **4th**      |
+| Model                     | Overall Rank | Function Calling | Emotions | Naturalness | HLE       | Expressiveness | Latency  | Boot Time | Code Gen | Ethics |
+| ------------------------- | ------------ | ---------------- | -------- | ------------ | --------- | -------------- | -------- | ---------- | -------- | ------- |
+| **Rose (Aivoco v1)**      | 🥇 **1st**   | 70.29% 🟢        | 89% 🟢   | 91% 🟢       | 41.21% 🟡 | 91% 🟢         | 0.69s 🟢 | 6.0s 🟡    | 94% 🟢   | 99% 🟢  |
+| **OpenAI (GPT Realtime)** | 🥈 **2nd**   | 50.27% 🟡        | 94% 🟢   | 89% 🟢       | 18.3% 🟡  | 98% 🟢         | 0.82s 🟡 | 0.8s 🟢    | 78% 🟡   | 83% 🟢  |
+| **Google (Gemini 2.5)**   | 🥉 **3rd**   | 37.06% 🟡        | 82% 🟡   | 51% 🟡       | 6.7% 🟡   | 91% 🟢         | 1.5s 🟡  | 3.0s 🟡    | 44% 🟡   | 27% 🟡  |
+| **Sesame (CSM 1)**        | **4th**      | 19.25% 🔴        | 88% 🟢   | 19% 🔴       | 0.6% 🔴   | 91% 🟢         | 0.76s 🟡 | 3.0s 🟡    | 7% 🔴    | 0% 🔴   |
 
 **Legend:** 🟢 Excellent (Top 25%) 🟡 Good (25-75%) 🔴 Needs Improvement (Bottom 25%)
 
