@@ -31,15 +31,31 @@ Traditional voice AI agents often rely on a cascaded system of separate Speech-t
 
 ## How ROSE Works
 
-ROSE processes incoming audio streams, analyzes the speech content, emotional tone, and linguistic context, and then generates a real-time vocal response. This is achieved through a sophisticated pipeline that includes:
+ROSE processes incoming audio streams natively in the **acoustic domain**, without converting them into text at any stage. The model operates through a high-speed transformer-based pipeline that analyzes, understands, and generates speech directly in its latent representation space.
 
-1) **Speech Recognition**: Transcribing spoken words into an intermediate textual representation.
-2) **Contextual Understanding**: Analyzing the meaning and intent of the spoken input.
-3) **Response Generation**: Formulating a contextually appropriate and emotionally resonant reply.
-4) **Speech Synthesis**: Converting the generated response into natural-sounding speech, complete with expressive prosody and desired vocal characteristics.
+**Pipeline Overview:**
 
-This intricate process, all happening in milliseconds, ensures that conversations with ROSE feel organic, responsive, and deeply human.
+1. **Speech Encoding (Input Stage)**
+   Incoming waveforms are encoded into high-dimensional **speech latent features**, capturing both linguistic and paralinguistic information — such as emotion, tone, and speaker intent.
+
+2. **Contextual Understanding (Transformer Core)**
+   These latent features are processed by a **multi-layer transformer** that models context, semantics, and expressive cues across time. The attention layers allow the model to interpret meaning and emotional tone while maintaining real-time responsiveness.
+
+3. **Speech Decoding (Output Stage)**
+   The processed latent representations are passed to a **speech decoder**, which reconstructs natural, expressive audio using a **neural vocoder** or synthesis module.
+
+4. **Real-Time Interaction**
+   Since ROSE never converts speech into text, it achieves **ultra-low latency** and maintains **emotional fidelity** — enabling fluid, human-like conversations.
 
 ---
 
 **© 2025 AIvoco** | ROSE - Real-Time Speech to Speech Intelligence
+
+
+
+
+
+
+
+
+
